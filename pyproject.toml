@@ -1,0 +1,27 @@
+[project]
+name = "call-me-maybe"
+version = "0.1.0"
+description = "Function calling with constrained decoding"
+requires-python = ">=3.10"
+dependencies = [
+    "llm-sdk",
+    "numpy",
+    "pydantic",
+]
+
+[dependency-groups]
+dev = [
+    "flake8",
+    "mypy",
+    "pytest>=9.2.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+llm-sdk = { path = "llm_sdk" }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
