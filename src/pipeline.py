@@ -1,6 +1,7 @@
 """Turning one user prompt into one function call."""
 
 from typing import Any
+import json
 from llm_sdk import Small_LLM_Model
 from .constrained import (
     choose_function_name,
@@ -22,7 +23,7 @@ def process_prompt(
     names = [fn.name for fn in functions]
     name_prompt = build_name_prompt(user_prompt, functions)
     chosen = choose_function_name(name_prompt, names, vocab, model)
-    fn = next(f for f in functions if f.name == chosen)
+    fn = next((f for f in functions if f.name == chosen), None)
     if fn is None:
         raise ValueError(f"Model returned unknown function: {chosen!r}")
     values: dict[str, Any] = {}
@@ -35,7 +36,7 @@ def process_prompt(
             prompt = build_param_prompt(user_prompt, fn, filled + '"')
             text = generate_string(prompt, vocab, model)
             values[param] = text
-            filled += f'"{text}"'
+            filled += json.dumps(text)
         elif spec.type == "integer":
             prompt = build_param_prompt(user_prompt, fn, filled)
             number = generate_number(

@@ -9,7 +9,9 @@ def build_name_prompt(
     """Build the prompt used to choose the function name."""
     lines = ["Available functions:"]
     for fn in functions:
-        lines.append(f"- {fn.name}: {fn.description}")
+        params = ", ".join(f"{name}: {spec.type}" for name, spec
+                           in fn.parameters.items())
+        lines.append(f"- {fn.name}({params}): {fn.description}")
     lines.append("")
     lines.append(f"Request: {user_prompt}")
     lines.append("Function to call: ")
@@ -31,8 +33,15 @@ def build_param_prompt(
         f"Function: {fn.name}",
         f"Description: {fn.description}",
         f"Parameters: {params}",
-        "Example: Request: Say hi to bob -> Arguments as JSON: "
-        '{"name": "bob"}',
+        (
+          "Rule: Extract exact values from the request; do not append _db or"
+          " extra words, and keep inner quotes."
+        ),
+        (
+            'Example: Request: Use the analytics database -> {"database":'
+            ' "analytics"}'
+        ),
+        'Example: Request: Print Say "hi"! -> {"text": "Say \\"hi\\"!"}',
         f"Request: {user_prompt}",
         "Arguments as JSON:",
         filled,
